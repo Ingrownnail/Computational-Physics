@@ -4,6 +4,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let prevWidth = canvas.width;
+let prevHeight = canvas.height;
+
 const sun = {
     x: canvas.width / 2,
     y: canvas.height / 2,
@@ -41,6 +44,29 @@ sizeSlider.addEventListener('input', (e) => {
 const resetBtn = document.getElementById('resetBtn');
 resetBtn.addEventListener('click', () => {
     planets.length = 0;
+});
+
+window.addEventListener('resize', () => {
+    const scaleX = window.innerWidth / prevWidth;
+    const scaleY = window.innerHeight / prevHeight;
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Scale sun position and radius
+    sun.x *= scaleX;
+    sun.y *= scaleY;
+    sun.radius *= Math.min(scaleX, scaleY);
+    
+    // Scale planet positions and radii
+    planets.forEach(planet => {
+        planet.x *= scaleX;
+        planet.y *= scaleY;
+        planet.radius *= Math.min(scaleX, scaleY);
+    });
+    
+    prevWidth = canvas.width;
+    prevHeight = canvas.height;
 });
 
 canvas.addEventListener('mousedown', (e) => {
