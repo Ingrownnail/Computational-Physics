@@ -9,3 +9,60 @@ canvas {
     width: 100vw;
     height: 100vh;
 }
+
+#resetBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+}
+
+#resetBtn:hover {
+    background-color: #555;
+}
+
+#controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(51, 51, 51, 0.9);
+    padding: 15px;
+    border: 2px solid white;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.control-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-item:last-child {
+    margin-bottom: 0;
+}
+
+.control-item label {
+    width: 50px;
+    font-weight: bold;
+}
+
+.control-item input[type="range"] {
+    width: 100px;
+    cursor: pointer;
+}
+
+.control-item span {
+    width: 30px;
+    text-align: right;
+}
