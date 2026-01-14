@@ -1,15 +1,19 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let dpr = window.devicePixelRatio || 1;
+canvas.width = window.innerWidth * dpr;
+canvas.height = window.innerHeight * dpr;
+canvas.style.width = window.innerWidth + 'px';
+canvas.style.height = window.innerHeight + 'px';
+ctx.scale(dpr, dpr);
 
-let prevWidth = canvas.width;
-let prevHeight = canvas.height;
+let prevWidth = window.innerWidth;
+let prevHeight = window.innerHeight;
 
 const sun = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
     radius: 35,
     color: 'yellow'
 };
@@ -20,6 +24,14 @@ let isDrawing = false;
 let startX, startY, currentX, currentY;
 let planetMass = 50;
 let planetSize = 10;
+
+function getEventPosition(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
 
 function getRandomColor() {
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
@@ -50,8 +62,13 @@ window.addEventListener('resize', () => {
     const scaleX = window.innerWidth / prevWidth;
     const scaleY = window.innerHeight / prevHeight;
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const newDpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * newDpr;
+    canvas.height = window.innerHeight * newDpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.scale(newDpr / dpr, newDpr / dpr);
+    dpr = newDpr;
     
     // Scale sun position and radius
     sun.x *= scaleX;
@@ -65,25 +82,66 @@ window.addEventListener('resize', () => {
         planet.radius *= Math.min(scaleX, scaleY);
     });
     
-    prevWidth = canvas.width;
-    prevHeight = canvas.height;
+    prevWidth = window.innerWidth;
+    prevHeight = window.innerHeight;
 });
 
 canvas.addEventListener('mousedown', (e) => {
     isDrawing = true;
-    startX = e.offsetX;
-    startY = e.offsetY;
+    const pos = getEventPosition(e);
+    startX = pos.x;
+    startY = pos.y;
 });
 
 canvas.addEventListener('mousemove', (e) => {
     if (isDrawing) {
-        currentX = e.offsetX;
-        currentY = e.offsetY;
+        const pos = getEventPosition(e);
+        currentX = pos.x;
+        currentY = pos.y;
     }
 });
 
 canvas.addEventListener('mouseup', (e) => {
     if (isDrawing) {
+        const dx = currentX - sun.x;
+        const dy = currentY - sun.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const tangentX = -dy / distance;
+        const tangentY = dx / distance;
+        const speed = 3;
+        planets.push({
+            x: currentX,
+            y: currentY,
+            vx: tangentX * speed,
+            vy: tangentY * speed,
+            radius: parseInt(planetSize),
+            mass: parseInt(planetMass),
+            color: getRandomColor()
+        });
+        isDrawing = false;
+    }
+});
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getEventPosition(e.touches[0]);
+    startX = pos.x;
+    startY = pos.y;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    if (isDrawing) {
+        e.preventDefault();
+        const pos = getEventPosition(e.touches[0]);
+        currentX = pos.x;
+        currentY = pos.y;
+    }
+});
+
+canvas.addEventListener('touchend', (e) => {
+    if (isDrawing) {
+        e.preventDefault();
         const dx = currentX - sun.x;
         const dy = currentY - sun.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
